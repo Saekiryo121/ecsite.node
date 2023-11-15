@@ -55,7 +55,7 @@
             <% if (reviews.length > 0) { %>
                 <% reviews.forEach(review => { %>
                     <p>
-                        <strong><%= review.userId %></strong>: <%= review.content %>
+                        <strong><%= review.userid %></strong>さん: <%= review.content %>
                         (評価: <%= review.evaluation %> / 5)
                     </p>
                 <% }); %>
@@ -63,7 +63,37 @@
                 <p>レビューはまだありません。</p>
             <% } %>
         </div>
+        <select id="review-sort-select" onchange="sortReviews()">
+            <option value="high">レビューの評価値高い順</option>
+            <option value="low">レビューの評価値低い順</option>
+        </select>
     </div>
-    <script src="/script.js"></script>
+    <script>
+        function sortReviews() {
+            let select = document.getElementById("review-sort-select");
+            let selectedValue = select.options[select.selectedIndex].value;
+
+            let reviewsContainer = document.querySelector(".reviews");
+
+            let reviews = document.querySelectorAll(".reviews p");
+
+            let reviewsArray = Array.from(reviews);
+
+            reviewsArray.sort(function (a, b) {
+                let aValue = parseInt(a.innerText.match(/\d+/)[0]);
+                let bValue = parseInt(b.innerText.match(/\d+/)[0]);
+
+                if (selectedValue === "high") {
+                    return bValue - aValue;
+                } else {
+                    return aValue - bValue;
+                }
+            });
+
+            reviewsArray.forEach(function (review) {
+                reviewsContainer.appendChild(review);
+            });
+        }
+    </script>
 </body>
 </html>
