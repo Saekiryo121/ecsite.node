@@ -54,9 +54,20 @@
 
             .product-item img {
                 max-width: 100%;
-                height: auto;
+                width: 100%;
+                height: 300px;
+                object-fit: cover;
                 border-bottom: 1px solid #ddd;
                 margin-bottom: 10px;
+                border-radius: 10px;
+                box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            }
+
+            .product-details {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                color: #fff;
             }
 
             .price {
@@ -85,11 +96,13 @@
         </select>
         <div class="product-list">
             <% allMenu.forEach(product=> { %> <div class="product-item">
-                <img src="<%= product.imagePath %>" alt="<%= product.name %>">
-                    <a href="/edit/<%= product.id %>">
-                    <h2><%= product.name %></h2>
-                    </a>
-                    <p class="price">価格: <%= product.price %>円</p>
+                    <img src="<%= product.imagePath %>" alt="<%= product.name %>">
+                    <div class="product-details">
+                        <a href="/edit/<%= product.id %>">
+                            <h2><%= product.name %></h2>
+                            </a>
+                        <p class="price">価格: <%= product.price %>円</p>
+                    </div>
                 </div>
                 <% }); %>
         </div>
@@ -111,9 +124,9 @@
                     let nameB = b.querySelector("h2").innerText.toLowerCase();
 
                     if (selectedValue === "high-price") {
-                        return parseFloat(b.querySelector("p").innerText.match(/\d+/)[0]) - parseFloat(a.querySelector("p").innerText.match(/\d+/)[0]);
+                        return parseFloat(b.querySelector(".price").innerText.match(/\d+/)[0]) - parseFloat(a.querySelector(".price").innerText.match(/\d+/)[0]);
                     } else if (selectedValue === "low-price") {
-                        return parseFloat(a.querySelector("p").innerText.match(/\d+/)[0]) - parseFloat(b.querySelector("p").innerText.match(/\d+/)[0]);
+                        return parseFloat(a.querySelector(".price").innerText.match(/\d+/)[0]) - parseFloat(b.querySelector(".price").innerText.match(/\d+/)[0]);
                     } else if (selectedValue === "alphabetical") {
                         return nameA.localeCompare(nameB);
                     }
