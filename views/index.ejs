@@ -2,268 +2,68 @@
 <html lang="ja">
     <head>
         <meta charset="UTF-8">
-        <title>User list</title>
+        <title>ECサイト</title>
         <style>
-            table {
-                width: 90%;
-                border-collapse: collapse;
-                margin: 100px auto;
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 0;
             }
 
-            th,
-            td,
-            .th {
-                border: 1px solid #dddddd;
-                text-align: left;
-                padding: 8px;
+            header {
+                background-color: #333;
+                color: #fff;
+                padding: 10px;
+                text-align: center;
             }
 
-            th {
-                background-color: #f2f2f2;
+            .product-list {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                justify-content: center;
+                margin-top: 20px;
             }
 
-            tr:nth-child(even) {
-                background-color: #f2f2f2;
+            .product-item {
+                border: 1px solid #ddd;
+                padding: 10px;
+                width: 200px;
+                text-align: center;
+                background-color: #fff;
+                box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
             }
 
-            a {
-                text-decoration: none;
-                color: #0070c9;
+            .product-item img {
+                max-width: 100%;
+                height: auto;
+                border-bottom: 1px solid #ddd;
+                margin-bottom: 10px;
             }
 
-            .width {
-                margin-left: 5%;
-                margin-top: 50px;
+            #sort-select {
+                margin-top: 20px;
+                padding: 10px;
+                font-size: 16px;
             }
         </style>
     </head>
     <body>
-        <div class="width">
-            <input type="text" id="filteredTextBox" placeholder="ここにテキストを入力">
-            <button id="clickButton">絞り込み</button>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>名前</th>
-                    <th>Email</th>
-                    <th>読み仮名</th>
-                    <th>性別</th>
-                    <th>電話番号</th>
-                    <th>仕事場</th>
-                    <th>世帯数</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% personas.forEach(function(persona) { %>
-                    <tr class="persona-row" data-persona-id="<%= persona.id %>">
-                        <td>
-                            <%= persona.name %>
-                        </td>
-                        <td>
-                            <%= persona.email %>
-                        </td>
-                        <td>
-                            <%= persona.kana_name %>
-                        </td>
-                        <td>
-                            <%= persona.gender %>
-                        </td>
-                        <td>
-                            <%= persona.phone %>
-                        </td>
-                        <td>
-                            <%= persona.workplace %>
-                        </td>
-                        <td>
-                            <%= persona.household %>
-                        </td>
-                        <td>
-                            <a href="/edit/<%= persona.id %>">更新</a>
-                            <a href="/delete/<%= persona.id %>">削除</a>
-                        </td>
-                        <td>
-                            <button class="select-button" data-persona-id="<%= persona.id %>">選択</button>
-                        </td>
-                    </tr>
-                    <% }); %>
-            </tbody>
-        </table>
-        <p><a href="/create">ユーザーの追加</a></p>
-        <div>
-            <h2>選択した情報一覧</h2>
-            <table id="selectedInfo">
-                <thead>
-                    <tr>
-                        <th>名前</th>
-                        <th>Email</th>
-                        <th>読み仮名</th>
-                        <th>性別</th>
-                        <th>電話番号</th>
-                        <th>仕事場</th>
-                        <th>世帯数</th>
-                    </tr>
-                </thead>
-                <tbody id="selectedInfoBody">
-                </tbody>
-            </table>
-            <button id="statisticsButton">統計情報表示</button>
-            <div id="statisticsResults">
-                <h2>統計情報</h2>
-                <p id="genderStatistics">性別統計: </p>
-                <p id="workplaceStatistics">仕事場統計: </p>
-                <p id="householdStatistics">世帯数統計: </p>
-            </div>
+        <header>
+            <h1>ECサイト</h1>
+        </header>
+        <div class="product-list">
+            <% allMenu.forEach(product=> { %> <div class="product-item">
+                    <a href="/edit/<%= product.id %>">
+                    <h2><%= product.name %></h2>
+                    </a>
+                    <p>価格: <%= product.price %>円</p>
+                </div>
+                <% }); %>
         </div>
         <script type="text/javascript">
-            let personas = JSON.parse('<%= JSON.stringify(personas) %>'.replace(/&#34;/g, '"'));
-
-            let clickButton = document.getElementById('clickButton');
-            clickButton.addEventListener('click', filterData);
-
-            const selectButtons = document.querySelectorAll('.select-button');
-            selectButtons.forEach((button) => {
-                button.addEventListener('click', function () {
-                    let personaId = button.getAttribute('data-persona-id');
-                    selectPersona(personaId);
-                });
-            });
-
-            let statisticsButton = document.getElementById('statisticsButton');
-            statisticsButton.addEventListener('click', showStatistics);
-
-            let selectedData = [];
-
-            let genderCount = {
-                male: 0,
-                female: 0
-            };
-
-            let workplaceCount = {};
-
-            let householdCount = {};
-
-            function showStatistics() {
-                let genderStatistics = document.getElementById('genderStatistics');
-                let workplaceStatistics = document.getElementById('workplaceStatistics');
-                let householdStatistics = document.getElementById('householdStatistics');
-
-                console.log("Starting showStatistics...");
-
-                personas.forEach(function (persona) {
-                    if (persona.gender === "男性") {
-                        genderCount.male++;
-                    } else if (persona.gender === "女性") {
-                        genderCount.female++;
-                    }
-
-                    if (workplaceCount[persona.workplace]) {
-                        workplaceCount[persona.workplace]++;
-                    } else {
-                        workplaceCount[persona.workplace] = 1;
-                    }
-
-                    if (householdCount[persona.household]) {
-                        householdCount[persona.household]++;
-                    } else {
-                        householdCount[persona.household] = 1;
-                    }
-                });
-                console.log(genderCount.male)
-                genderStatistics.textContent = `性別: 男性 ${genderCount.male}, 女性 ${genderCount.female}`;
-
-                workplaceStatistics.textContent = "仕事場統計: ";
-                for (const workplace in workplaceCount) {
-                    workplaceStatistics.textContent += `${workplace} ${workplaceCount[workplace]} 人, `;
-                }
-
-                householdStatistics.textContent = "世帯数統計: ";
-                for (const household in householdCount) {
-                    householdStatistics.textContent += `${household} ${householdCount[household]} 人, `;
-                }
-
-                workplaceStatistics.textContent = workplaceStatistics.textContent.slice(0, -2);
-                householdStatistics.textContent = householdStatistics.textContent.slice(0, -2);
-
-                console.log("Finished showStatistics.");
-            }
-
-
-
-
-
-            function filterData() {
-                let filteredTextBox = document.getElementById('filteredTextBox');
-                let filterKeyword = filteredTextBox.value.toLowerCase();
-
-                let personaRows = document.querySelectorAll('.persona-row');
-                personaRows.forEach(function (row) {
-                    row.style.display = '';
-                });
-
-                if (filterKeyword !== '') {
-                    personaRows.forEach(function (row) {
-                        let name = row.querySelector('td').textContent;
-                        if (name.toLowerCase().includes(filterKeyword)) {
-                            row.style.display = '';
-                        } else {
-                            row.style.display = 'none';
-                        }
-                    });
-                }
-            }
-
-            function selectPersona(id) {
-                let selectedRow = document.querySelector(`.persona-row[data-persona-id="${id}"]`);
-
-                const name = selectedRow.querySelector('td:nth-child(1)').textContent;
-                const email = selectedRow.querySelector('td:nth-child(2)').textContent;
-                const kanaName = selectedRow.querySelector('td:nth-child(3)').textContent;
-                const gender = selectedRow.querySelector('td:nth-child(4)').textContent;
-                const phone = selectedRow.querySelector('td:nth-child(5)').textContent;
-                const workplace = selectedRow.querySelector('td:nth-child(6)').textContent;
-                const household = selectedRow.querySelector('td:nth-child(7)').textContent;
-                selectedData.push({
-                    id: id,
-                    name: name,
-                    email: email,
-                    kanaName: kanaName,
-                    gender: gender,
-                    phone: phone,
-                    workplace: workplace,
-                    household: household
-                });
-
-                selectedRow.style.display = 'none';
-
-                updateSelectedInfoList();
-            }
-
-            function updateSelectedInfoList() {
-                let selectedInfoTable = document.getElementById('selectedInfo');
-                let selectedInfoBody = document.getElementById('selectedInfoBody');
-                selectedInfoBody.innerHTML = '';
-
-                selectedData.forEach(function (data) {
-                    let newRow = selectedInfoBody.insertRow();
-                    let nameCell = newRow.insertCell();
-                    let emailCell = newRow.insertCell();
-                    let kanaNameCell = newRow.insertCell();
-                    let genderCell = newRow.insertCell();
-                    let phoneCell = newRow.insertCell();
-                    let workplaceCell = newRow.insertCell();
-                    let householdCell = newRow.insertCell();
-
-                    nameCell.textContent = data.name;
-                    emailCell.textContent = data.email;
-                    kanaNameCell.textContent = data.kanaName;
-                    genderCell.textContent = data.gender;
-                    phoneCell.textContent = data.phone;
-                    workplaceCell.textContent = data.workplace;
-                    householdCell.textContent = data.household;
-                });
-            }
+            let allMenu = JSON.parse('<%= JSON.stringify(allMenu) %>'.replace(/&#34;/g, '"'));
         </script>
     </body>
 </html>

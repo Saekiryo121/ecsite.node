@@ -18,56 +18,33 @@ const con = mysql.createConnection({
 });
 
 
-// mysqlからデータを持ってくる
 app.get("/", (req, res) => {
-  const sql = "select * from personas";
-
-  app.post("/", (req, res) => {
-    const sql = "INSERT INTO personas SET ?";
-    con.query(sql, req.body, function (err, result, fields) {
-      if (err) throw err;
-      console.log(result);
-      res.redirect("/");
-    });
-  });
-
-  app.get("/create", (req, res) => {
-    res.sendFile(path.join(__dirname, "html/form.html"));
-  });
-
+  const sql = "SELECT * FROM allMenu";
   con.query(sql, function (err, result, fields) {
     if (err) throw err;
     res.render("index", {
-      personas: result
+      allMenu: result,
+      pageTitle: "商品一覧ページ",
     });
   });
 });
 
 app.get("/edit/:id", (req, res) => {
-  const sql = "SELECT * FROM personas WHERE id = ?";
-  con.query(sql, [req.params.id], function (err, result, fields) {
+  const productId = req.params.id;
+  const productSql = "SELECT * FROM allMenu WHERE id = ?";
+  const reviewSql = "SELECT * FROM review WHERE itemId = ?";
+
+  con.query(productSql, [productId], (err, productResult, fields) => {
     if (err) throw err;
-    res.render("edit", {
-      persona: result,
+
+    con.query(reviewSql, [productId], (err, reviewResult, fields) => {
+      if (err) throw err;
+
+      res.render("edit", {
+        menu: productResult,
+        reviews: reviewResult,
+      });
     });
-  });
-});
-
-app.post("/update/:id", (req, res) => {
-  const sql = "UPDATE personas SET ? WHERE id = " + req.params.id;
-  con.query(sql, req.body, function (err, result, fields) {
-    if (err) throw err;
-    console.log(result);
-    res.redirect("/");
-  });
-});
-
-app.get("/delete/:id", (req, res) => {
-  const sql = "DELETE FROM personas WHERE id = ?";
-  con.query(sql, [req.params.id], function (err, result, fields) {
-    if (err) throw err;
-    console.log(result);
-    res.redirect("/");
   });
 });
 

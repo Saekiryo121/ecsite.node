@@ -1,16 +1,69 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Edit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles.css">
+    <title><%= menu[0].name %> - 商品編集ページ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .product-detail {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        p {
+            color: #777;
+        }
+
+        .reviews {
+            margin-top: 20px;
+        }
+
+        .reviews h3 {
+            color: #333;
+        }
+
+        .reviews p {
+            margin: 10px 0;
+        }
+
+        .reviews strong {
+            color: #555;
+        }
+    </style>
 </head>
 <body>
-  <!--formの％は全て消した状態で行うか？-->
-    <h1>更新フォーム</h1>
-    <form action="/update/<%= user[0].id %>" method="POST">
-        name <input type="text" name="name" value="<%= user[0].name %>"><br>
-        email <input type="text" name="email" value="<%= user[0].email %>"><br>
-        <button type="submit">更新</button>
-    </form>
+    <div class="product-detail">
+        <h2><%= menu[0].name %></h2>
+        <p>価格: <%= menu[0].price %>円</p>
+        <div class="reviews">
+            <h3>レビュー一覧</h3>
+            <% if (reviews.length > 0) { %>
+                <% reviews.forEach(review => { %>
+                    <p>
+                        <strong><%= review.userId %></strong>: <%= review.content %>
+                        (評価: <%= review.evaluation %> / 5)
+                    </p>
+                <% }); %>
+            <% } else { %>
+                <p>レビューはまだありません。</p>
+            <% } %>
+        </div>
+    </div>
+    <script src="/script.js"></script>
 </body>
 </html>
