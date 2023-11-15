@@ -1,70 +1,128 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>ECサイト</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <title>ECサイト</title>
+        <style>
+            body {
+                font-family: 'Noto Sans JP', sans-serif;
+                background-color: #b4e0e7;
+                margin: 0;
+                padding: 0;
+            }
 
-        header {
-            background-color: #333;
-            color: #fff;
-            padding: 10px;
-            text-align: center;
-        }
+            header {
+                background-color: #003366;
+                color: #fff;
+                padding: 15px;
+                text-align: center;
+            }
 
-        .product-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            margin-top: 20px;
-        }
+            #sort-select {
+                margin-top: 20px;
+                padding: 10px;
+                font-size: 16px;
+                background-color: #003366;
+                color: #fff;
+            }
 
-        .product-item {
-            border: 1px solid #ddd;
-            padding: 10px;
-            width: calc(33.333% - 20px);
-            text-align: center;
-            background-color: #fff;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-        }
+            .product-list {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                justify-content: center;
+                margin-top: 20px;
+                background-color: #fff;
+                padding: 20px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
 
-        .product-item img {
-            max-width: 100%;
-            height: auto;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 10px;
-        }
+            .product-item {
+                border: 1px solid #ddd;
+                padding: 10px;
+                width: calc(33.333% - 20px);
+                text-align: center;
+                background-color: #003366;
+                position: relative;
+                overflow: hidden;
+                transition: transform 0.3s ease-in-out;
+            }
 
-        #sort-select {
-            margin-top: 20px;
-            padding: 10px;
-            font-size: 16px;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <h1>ECサイト</h1>
-    </header>
-    <div class="product-list">
-        <% allMenu.forEach(product => { %>
-            <div class="product-item">
-                <a href="/edit/<%= product.id %>">
+            .product-item:hover {
+                transform: scale(1.05);
+            }
+
+            .product-item img {
+                max-width: 100%;
+                height: auto;
+                border-bottom: 1px solid #ddd;
+                margin-bottom: 10px;
+            }
+
+            .price {
+                color: #fff;
+            }
+
+            a {
+                text-decoration: none;
+                color: #fff;
+                font-weight: bold;
+            }
+
+            a:hover {
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>水族館チケット販売サイト</h1>
+        </header>
+        <select id="sort-select" onchange="sortProducts()">
+            <option value="high-price">商品価格高い順</option>
+            <option value="low-price">商品価格低い順</option>
+            <option value="alphabetical">商品名50音順</option>
+        </select>
+        <div class="product-list">
+            <% allMenu.forEach(product=> { %> <div class="product-item">
+                <img src="<%= product.imagePath %>" alt="<%= product.name %>">
+                    <a href="/edit/<%= product.id %>">
                     <h2><%= product.name %></h2>
                     </a>
-                    <p>価格: <%= product.price %>円</p>
-            </div>
-        <% }); %>
-    </div>
-    <script type="text/javascript">
-        let allMenu = JSON.parse('<%= JSON.stringify(allMenu) %>'.replace(/&#34;/g, '"'));
-    </script>
-</body>
+                    <p class="price">価格: <%= product.price %>円</p>
+                </div>
+                <% }); %>
+        </div>
+        <script type="text/javascript">
+            let allMenu = JSON.parse('<%= JSON.stringify(allMenu) %>'.replace(/&#34;/g, '"'));
+
+            function sortProducts() {
+                let select = document.getElementById("sort-select");
+                let selectedValue = select.options[select.selectedIndex].value;
+
+                let productContainer = document.querySelector(".product-list");
+
+                let products = document.querySelectorAll(".product-item");
+
+                let productsArray = Array.from(products);
+
+                productsArray.sort(function (a, b) {
+                    let nameA = a.querySelector("h2").innerText.toLowerCase();
+                    let nameB = b.querySelector("h2").innerText.toLowerCase();
+
+                    if (selectedValue === "high-price") {
+                        return parseFloat(b.querySelector("p").innerText.match(/\d+/)[0]) - parseFloat(a.querySelector("p").innerText.match(/\d+/)[0]);
+                    } else if (selectedValue === "low-price") {
+                        return parseFloat(a.querySelector("p").innerText.match(/\d+/)[0]) - parseFloat(b.querySelector("p").innerText.match(/\d+/)[0]);
+                    } else if (selectedValue === "alphabetical") {
+                        return nameA.localeCompare(nameB);
+                    }
+                });
+
+                productsArray.forEach(function (product) {
+                    productContainer.appendChild(product);
+                });
+            }
+        </script>
+    </body>
 </html>

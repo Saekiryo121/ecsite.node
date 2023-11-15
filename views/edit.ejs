@@ -7,8 +7,8 @@
     <title><%= menu[0].name %> - 商品編集ページ</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background-color: #b3e0ff;
             margin: 0;
             padding: 0;
         }
@@ -19,14 +19,15 @@
             background-color: #fff;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
         }
 
         h2 {
-            color: #333;
+            color: #0066cc;
         }
 
         p {
-            color: #777;
+            color: #333;
         }
 
         .reviews {
@@ -34,7 +35,7 @@
         }
 
         .reviews h3 {
-            color: #333;
+            color: #0066cc;
         }
 
         .reviews p {
@@ -42,7 +43,18 @@
         }
 
         .reviews strong {
-            color: #555;
+            color: #3399ff;
+        }
+
+        select {
+            margin-top: 10px;
+            padding: 8px;
+            font-size: 16px;
+            background-color: #3399ff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -52,6 +64,10 @@
         <p>価格: <%= menu[0].price %>円</p>
         <div class="reviews">
             <h3>レビュー一覧</h3>
+            <select id="review-sort-select" onchange="sortReviews()">
+                <option value="high">レビューの評価値高い順</option>
+                <option value="low">レビューの評価値低い順</option>
+            </select>
             <% if (reviews.length > 0) { %>
                 <% reviews.forEach(review => { %>
                     <p>
@@ -63,10 +79,6 @@
                 <p>レビューはまだありません。</p>
             <% } %>
         </div>
-        <select id="review-sort-select" onchange="sortReviews()">
-            <option value="high">レビューの評価値高い順</option>
-            <option value="low">レビューの評価値低い順</option>
-        </select>
     </div>
     <script>
         function sortReviews() {
