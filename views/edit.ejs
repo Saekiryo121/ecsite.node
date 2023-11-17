@@ -1,69 +1,238 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/styles.css">
-    <title><%= menu[0].name %> - 商品編集ページ</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title><%= menu[0].name %> - 商品詳細ページ</title>
+        <style>
+            body {
+                font-family: 'Comic Sans MS', 'Arial', sans-serif;
+                background-color: #b3e0ff;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
 
-        .product-detail {
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+            a {
+                display: inline-block;
+                margin-top: 20px;
+                text-decoration: none;
+                color: #fff;
+                background-color: #e44d26;
+                padding: 10px 20px;
+                border-radius: 5px;
+                transition: background-color 0.3s ease;
+            }
 
-        h2 {
-            color: #333;
-        }
+            a:hover {
+                background-color: #ff6347;
+            }
 
-        p {
-            color: #777;
-        }
+            .product-detail {
+                max-width: 600px;
+                margin: 20px auto;
+                background-color: #fff;
+                padding: 20px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                border-radius: 10px;
+                text-align: center;
+            }
 
-        .reviews {
-            margin-top: 20px;
-        }
+            h2 {
+                color: #0066cc;
+            }
 
-        .reviews h3 {
-            color: #333;
-        }
+            p {
+                color: #333;
+                margin: 10px 0;
+                font-size: 16px;
+            }
 
-        .reviews p {
-            margin: 10px 0;
-        }
+            .product-image img {
+                max-width: 100%;
+                height: auto;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
 
-        .reviews strong {
-            color: #555;
-        }
-    </style>
-</head>
-<body>
-    <div class="product-detail">
-        <h2><%= menu[0].name %></h2>
-        <p>価格: <%= menu[0].price %>円</p>
+            .reviews {
+                text-align: center;
+                width: 600px;
+                max-width: 600px;
+                margin: 50px auto;
+                padding: 20px 0 50px 0;
+                background-color: #fff;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                border-radius: 10px;
+            }
+
+            .reviews h3 {
+                color: #0066cc;
+            }
+
+            select {
+                margin-top: 10px;
+                padding: 8px;
+                font-size: 16px;
+                background-color: #3399ff;
+                color: #fff;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            .reviews p {
+                margin: 10px 0;
+                font-size: 14px;
+            }
+
+            .reviews strong {
+                color: #3399ff;
+            }
+
+            .cart-button {
+                background-color: #e44d26;
+                color: #fff;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+                margin-top: 20px;
+            }
+
+            .cart-button:hover {
+                background-color: #ff6347;
+            }
+
+            .jump-links {
+                width: 45%;
+                display: flex;
+                justify-content: space-between;
+                margin: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="jump-links">
+            <a class="return-link" href="/">◀︎商品一覧に戻る</a>
+            <a class="cart-link" href="/cart">買い物カートへ▶︎</a>
+        </div>
+        <div class="product-detail">
+            <div class="product-image">
+                <img src="<%= menu[0].imagePath %>" alt="<%= menu[0].name %>">
+            </div>
+            <h2><%= menu[0].name %></h2>
+            <p>価格: <%= menu[0].price %>円</p>
+            <button class="cart-button" onclick="addToCart()">買い物カゴへ入れる</button>
+        </div>
         <div class="reviews">
             <h3>レビュー一覧</h3>
-            <% if (reviews.length > 0) { %>
-                <% reviews.forEach(review => { %>
+            <select id="review-sort-select" onchange="sortReviews()">
+                <option value="high">レビューの評価値高い順</option>
+                <option value="low">レビューの評価値低い順</option>
+            </select>
+            <% if (reviews.length> 0) { %> <% reviews.forEach(review=> { %>
                     <p>
-                        <strong><%= review.userId %></strong>: <%= review.content %>
-                        (評価: <%= review.evaluation %> / 5)
-                    </p>
-                <% }); %>
-            <% } else { %>
-                <p>レビューはまだありません。</p>
-            <% } %>
+                    <strong><%= review.userid %></strong>さん: <%= review.content %>
+                    (評価: <%= review.evaluation %> / 5)
+                </p>
+                    <% }); %>
+                        <% } else { %>
+                            <p>レビューはまだありません。</p>
+                            <% } %>
         </div>
-    </div>
-    <script src="/script.js"></script>
-</body>
+        <script>
+            function sortReviews() {
+                let select = document.getElementById("review-sort-select");
+                let selectedValue = select.options[select.selectedIndex].value;
+
+                let reviewsContainer = document.querySelector(".reviews");
+
+                let reviews = document.querySelectorAll(".reviews p");
+
+                let reviewsArray = Array.from(reviews);
+
+                reviewsArray.sort(function (a, b) {
+                    let aValue = parseInt(a.innerText.match(/\d+/)[0]);
+                    let bValue = parseInt(b.innerText.match(/\d+/)[0]);
+
+                    if (selectedValue === "high") {
+                        return bValue - aValue;
+                    } else {
+                        return aValue - bValue;
+                    }
+                });
+
+                reviewsArray.forEach(function (review) {
+                    reviewsContainer.appendChild(review);
+                });
+            }
+
+            function addToCart() {
+                const menuJSON = `<%- JSON.stringify(menu[0], null, 2).replace(/'/g, '&quot;') %>`;
+
+                console.log('menuJSON:', menuJSON);
+
+                try {
+                    const menu = JSON.parse(menuJSON.replace(/&quot;/g, '"'));
+                    console.log('menu:', menu);
+
+                    console.log('menu.imagePath:', menu.imagePath);
+
+                    if (menu && menu.imagePath && menu.name && menu.price) {
+                        const item = {
+                            menu: {
+                                imagePath: menu.imagePath,
+                                name: menu.name,
+                                price: menu.price,
+                            },
+                            id: menu.id,
+                        };
+                        console.log('item to be sent:', item);
+
+                        fetch('/add-to-cart', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(item),
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log('Success:', data);
+                            })
+                            .catch((error) => {
+                                console.error('Error:', error);
+                            });
+                    } else {
+                        console.error('Required menu information not available.');
+                    }
+                } catch (error) {
+                    console.error('Error parsing menuJSON:', error);
+                }
+            }
+
+
+
+            function updateCartDisplay() {
+                const cartItemsElement = document.getElementById("cart-items");
+                cartItemsElement.innerHTML = "";
+
+                cartItems.forEach(item => {
+                    const cartItemHTML = `
+                <li>
+                    <img src="${item.menu.imagePath}" alt="${item.menu.name}">
+                    <p>${item.menu.name}</p>
+                    <p>${item.menu.price}円</p>
+                    <button onclick="removeFromCart(this)">削除</button>
+                </li>
+            `;
+                    cartItemsElement.innerHTML += cartItemHTML;
+                });
+            }
+        </script>
+    </body>
 </html>
