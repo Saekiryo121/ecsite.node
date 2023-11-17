@@ -85,6 +85,22 @@
             a:hover {
                 text-decoration: underline;
             }
+
+            .cart-link {
+                background-color: #003366;
+                color: #fff;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+                margin-top: 20px;
+                margin-left: 550px;
+            }
+
+            .cart-link:hover {
+                background-color: #0080ff;
+            }
         </style>
     </head>
     <body>
@@ -98,6 +114,7 @@
             <option value="most-reviews">レビュー数多い順</option>
             <option value="high-rating">レビュー評価高い順</option>
         </select>
+        <a class="cart-link" href="/cart">買い物カートへ▶︎</a>
         <div class="product-list">
             <% allMenu.forEach(product=> { %> <div class="product-item" data-review-count="<%= product.reviews.length %>" data-average-rating="<%= product.averageRating %>">
                     <img src="<%= product.imagePath %>" alt="<%= product.name %>">
