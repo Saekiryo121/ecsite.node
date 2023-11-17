@@ -1,106 +1,167 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>買い物カゴ</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>買い物カート</title>
+        <style>
+            body {
+                font-family: 'Arial', sans-serif;
+                background-color: #f5f5f5;
+                margin: 20px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
 
-        #cart {
-            max-width: 800px;
-            margin: 20px auto;
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-        }
+            #cart {
+                max-width: 800px;
+                width: 100%;
+                background-color: #fff;
+                padding: 20px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                border-radius: 10px;
+                margin-bottom: 20px;
+            }
 
-        h2 {
-            color: #333;
-        }
+            h2 {
+                color: #333;
+            }
 
-        #cart-items {
-            list-style-type: none;
-            padding: 0;
-        }
+            #cart-items {
+                list-style-type: none;
+                padding: 0;
+            }
 
-        li {
-            margin-bottom: 20px;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 10px;
-        }
+            li {
+                margin-bottom: 20px;
+                border-bottom: 1px solid #ddd;
+                padding-bottom: 10px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
 
-        img {
-            max-width: 100px;
-            height: auto;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
+            img {
+                max-width: 100px;
+                height: auto;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
 
-        p {
-            margin: 5px 0;
-        }
+            .product-details {
+                flex: 1;
+                margin-left: 20px;
+            }
 
-        #totalPrice {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-        }
+            p {
+                margin: 5px 0;
+            }
 
-        button {
-            background-color: #e44d26;
-            color: #fff;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-    <div id="cart">
-        <h2>買い物カゴ</h2>
-        <ul id="cart-items">
-            <% cartItems.forEach(item => { %>
-                <li>
-                    <div class="product-image">
-                        <img src="<%= item.imagePath %>" alt="<%= item.name %>">
-                    </div>
-                    <div class="product-details">
-                        <p><%= item.name %></p>
-                        <p><%= item.price %>円</p>
-                    </div>
-                    <button onclick="removeFromCart(this, '<%= item.id %>')">削除</button>
-                </li>
-            <% }); %>
-        </ul>
-        <p>合計金額: <span id="totalPrice"><%= totalPrice %>円</span></p>
-    </div>
-    <script>
-        function removeFromCart(button, itemId) {
-            // TODO: カートから商品を削除する処理を実装
-            console.log("Remove item with ID:", itemId);
-        }
+            #totalPrice {
+                font-size: 18px;
+                font-weight: bold;
+                color: #333;
+            }
 
-        function updateTotalPrice() {
-            const cartItems = document.querySelectorAll("#cart-items li");
-            let totalPrice = 0;
+            button {
+                background-color: #e44d26;
+                color: #fff;
+                border: none;
+                padding: 5px 10px;
+                border-radius: 5px;
+                cursor: pointer;
+            }
 
-            cartItems.forEach(item => {
-                const priceText = item.querySelector("p:nth-child(3)").textContent;
-                const price = parseInt(priceText.replace(/[^0-9]/g, ""));
-                totalPrice += price;
-            });
+            a {
+                display: inline-block;
+                margin-top: 20px;
+                text-align: center;
+                text-decoration: none;
+                color: #fff;
+                background-color: #e44d26;
+                padding: 10px 20px;
+                border-radius: 5px;
+                transition: background-color 0.3s ease;
+            }
 
-            const totalPriceElement = document.getElementById("totalPrice");
-            totalPriceElement.textContent = `${totalPrice}円`;
-        }
-    </script>
-</body>
+            a:hover {
+                background-color: #ff6347;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="cart">
+            <h2>買い物カート</h2>
+            <ul id="cart-items">
+                <% cartItems.forEach(item=> { %> <li>
+                        <div class="product-image">
+                            <img src="<%= item.imagePath %>" alt="<%= item.name %>">
+                        </div>
+                        <div class="product-details">
+                            <p><%= item.name %></p>
+                            <p><%= item.price %>円</p>
+                        </div>
+                        <button onclick="removeFromCart(this, '<%= item.id %>')">削除</button>
+                    </li>
+                    <% }); %>
+            </ul>
+            <p>合計金額: <span id="totalPrice"><%= totalPrice %>円</span></p>
+        </div>
+        <a href="/">商品一覧に戻る</a>
+        <script>
+            async function removeFromCart(button, itemId) {
+                try {
+                    const response = await fetch('/remove-from-cart', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ itemId: itemId }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Failed to remove item from cart: ${response.status}`);
+                    }
+
+                    const cartItemElement = button.closest("li");
+                    const priceElement = cartItemElement.querySelector("p:nth-child(2)");
+
+                    if (priceElement && priceElement.textContent) {
+                        const removedItemPrice = parseInt(priceElement.textContent.replace(/[^0-9]/g, ""));
+                        cartItemElement.remove();
+                        updateTotalPrice(removedItemPrice);
+                    } else {
+                        console.error("Price element not found or empty.");
+                    }
+                } catch (error) {
+                    console.error(error.message);
+                }
+            }
+
+            function updateTotalPrice(removedItemPrice) {
+                const cartItems = document.querySelectorAll("#cart-items li");
+                let totalPrice = 0;
+
+                cartItems.forEach(item => {
+                    const priceElement = item.querySelector("p:nth-child(2)");
+                    if (priceElement && priceElement.textContent) {
+                        const priceText = priceElement.textContent;
+                        const price = parseInt(priceText.replace(/[^0-9]/g, ""));
+                        totalPrice += price;
+                    }
+                });
+                console.log(totalPrice)
+
+                console.log(removedItemPrice)
+
+                const totalPriceElement = document.getElementById("totalPrice");
+                if (totalPriceElement) {
+                    totalPriceElement.textContent = `${totalPrice}円`;
+                }
+                console.log(totalPrice)
+            }
+
+        </script>
+    </body>
 </html>

@@ -16,10 +16,18 @@
             }
 
             a {
+                display: inline-block;
+                margin-top: 20px;
                 text-decoration: none;
-                color: #333;
-                font-size: 18px;
-                margin-top: 10px;
+                color: #fff;
+                background-color: #e44d26;
+                padding: 10px 20px;
+                border-radius: 5px;
+                transition: background-color 0.3s ease;
+            }
+
+            a:hover {
+                background-color: #ff6347;
             }
 
             .product-detail {
@@ -50,8 +58,14 @@
             }
 
             .reviews {
-                margin-top: 20px;
-                text-align: left;
+                text-align: center;
+                width: 600px;
+                max-width: 600px;
+                margin: 50px auto;
+                padding: 20px 0 50px 0;
+                background-color: #fff;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                border-radius: 10px;
             }
 
             .reviews h3 {
@@ -92,19 +106,29 @@
             .cart-button:hover {
                 background-color: #ff6347;
             }
+
+            .jump-links {
+                width: 45%;
+                display: flex;
+                justify-content: space-between;
+                margin: 20px;
+            }
         </style>
     </head>
     <body>
-        <a href="/cart">買い物カゴへ</a>
+        <div class="jump-links">
+            <a class="return-link" href="/">◀︎商品一覧に戻る</a>
+            <a class="cart-link" href="/cart">買い物カートへ▶︎</a>
+        </div>
         <div class="product-detail">
             <div class="product-image">
                 <img src="<%= menu[0].imagePath %>" alt="<%= menu[0].name %>">
             </div>
             <h2><%= menu[0].name %></h2>
             <p>価格: <%= menu[0].price %>円</p>
+            <button class="cart-button" onclick="addToCart()">買い物カゴへ入れる</button>
         </div>
         <div class="reviews">
-            <button class="cart-button" onclick="addToCart()">買い物カゴへ入れる</button>
             <h3>レビュー一覧</h3>
             <select id="review-sort-select" onchange="sortReviews()">
                 <option value="high">レビューの評価値高い順</option>
@@ -149,39 +173,48 @@
 
             function addToCart() {
                 const menuJSON = `<%- JSON.stringify(menu[0], null, 2).replace(/'/g, '&quot;') %>`;
-                console.log(menuJSON);
-                const menu = JSON.parse(menuJSON.replace(/&quot;/g, '"'));
-                console.log(menu);
 
-                if (menu) {
-                    const item = {
-                        menu: {
-                            imagePath: menu.imagePath,
-                            name: menu.name,
-                            price: menu.price,
-                        },
-                        id: menu.id,
-                    };
+                console.log('menuJSON:', menuJSON);
 
-                    fetch('/add-to-cart', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(item),
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log('Success:', data);
+                try {
+                    const menu = JSON.parse(menuJSON.replace(/&quot;/g, '"'));
+                    console.log('menu:', menu);
+
+                    console.log('menu.imagePath:', menu.imagePath);
+
+                    if (menu && menu.imagePath && menu.name && menu.price) {
+                        const item = {
+                            menu: {
+                                imagePath: menu.imagePath,
+                                name: menu.name,
+                                price: menu.price,
+                            },
+                            id: menu.id,
+                        };
+                        console.log('item to be sent:', item);
+
+                        fetch('/add-to-cart', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(item),
                         })
-                        .catch((error) => {
-                            console.error('Error:', error);
-                        });
-                } else {
-                    console.error('Menu information not available.');
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log('Success:', data);
+                            })
+                            .catch((error) => {
+                                console.error('Error:', error);
+                            });
+                    } else {
+                        console.error('Required menu information not available.');
+                    }
+                } catch (error) {
+                    console.error('Error parsing menuJSON:', error);
                 }
-
             }
+
 
 
             function updateCartDisplay() {

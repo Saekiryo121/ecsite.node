@@ -2,10 +2,10 @@
 <html lang="ja">
     <head>
         <meta charset="UTF-8">
-        <title>ECサイト</title>
+        <title>水族館チケット販売サイト</title>
         <style>
             body {
-                font-family: 'Noto Sans JP', sans-serif;
+                font-family: 'cursive', sans-serif;
                 background-color: #b4e0e7;
                 margin: 0;
                 padding: 0;
@@ -20,6 +20,7 @@
 
             #sort-select {
                 margin-top: 20px;
+                margin-left: 250px;
                 padding: 10px;
                 font-size: 16px;
                 background-color: #003366;
@@ -40,7 +41,8 @@
             .product-item {
                 border: 1px solid #ddd;
                 padding: 10px;
-                width: calc(33.333% - 20px);
+                margin: 50px 0;
+                width: calc(25% - 20px);
                 text-align: center;
                 background-color: #003366;
                 position: relative;
@@ -93,21 +95,52 @@
             <option value="high-price">商品価格高い順</option>
             <option value="low-price">商品価格低い順</option>
             <option value="alphabetical">商品名50音順</option>
+            <option value="most-reviews">レビュー数多い順</option>
+            <option value="high-rating">レビュー評価高い順</option>
         </select>
         <div class="product-list">
-            <% allMenu.forEach(product=> { %> <div class="product-item">
+            <% allMenu.forEach(product=> { %> <div class="product-item" data-review-count="<%= product.reviews.length %>" data-average-rating="<%= product.averageRating %>">
                     <img src="<%= product.imagePath %>" alt="<%= product.name %>">
                     <div class="product-details">
                         <a href="/edit/<%= product.id %>">
                             <h2><%= product.name %></h2>
-                            </a>
                         <p class="price">価格: <%= product.price %>円</p>
+                        </a>
+                        <% if (product.reviews && product.reviews.length> 0) { %>
+                            <p>レビュー数: <%= product.reviews.length %>件</p>
+                            <p>平均評価: <%= product.averageRating %> / 5</p>
+                            <% } else { %>
+                                <p>レビューはまだありません。</p>
+                                <% } %>
                     </div>
                 </div>
                 <% }); %>
         </div>
         <script type="text/javascript">
+            console.log("calculateAverageRating function is:", calculateAverageRating);
+            function calculateAverageRating(reviews) {
+                if (!reviews || reviews.length === 0) {
+                    return "0";
+                }
+
+                let totalRating = 0;
+
+                reviews.forEach(review => {
+                    if (typeof review.evaluation === 'number') {
+                        totalRating += review.evaluation;
+                    } else if (typeof review.evaluation === 'string' && !isNaN(review.evaluation)) {
+                        totalRating += parseFloat(review.evaluation);
+                    }
+                });
+
+                const averageRating = totalRating / reviews.length;
+                console.log("Average Rating:", averageRating);
+
+                return averageRating.toFixed(1);
+            }
+
             let allMenu = JSON.parse('<%= JSON.stringify(allMenu) %>'.replace(/&#34;/g, '"'));
+            console.log("allMenu data:", allMenu);
 
             function sortProducts() {
                 let select = document.getElementById("sort-select");
@@ -129,6 +162,10 @@
                         return parseFloat(a.querySelector(".price").innerText.match(/\d+/)[0]) - parseFloat(b.querySelector(".price").innerText.match(/\d+/)[0]);
                     } else if (selectedValue === "alphabetical") {
                         return nameA.localeCompare(nameB);
+                    } else if (selectedValue === "most-reviews") {
+                        return parseInt(b.getAttribute("data-review-count")) - parseInt(a.getAttribute("data-review-count"));
+                    } else if (selectedValue === "high-rating") {
+                        return parseFloat(b.getAttribute("data-average-rating")) - parseFloat(a.getAttribute("data-average-rating"));
                     }
                 });
 
@@ -136,6 +173,15 @@
                     productContainer.appendChild(product);
                 });
             }
+
+            allMenu.forEach(product => {
+                if (product.reviews) {
+                    product.averageRating = calculateAverageRating(product.reviews);
+                } else {
+                    product.averageRating = null;
+                }
+                console.log(product);
+            });
         </script>
     </body>
 </html>
